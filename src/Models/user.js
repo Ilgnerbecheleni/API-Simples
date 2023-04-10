@@ -35,7 +35,7 @@ const schema = new Schema({
     type: Date,
     default: () =>  moment().format('YYYY-MM-DD'),
   },
-  acativo: {
+  ativo: {
     type: Boolean,
     required: true,
     default: true

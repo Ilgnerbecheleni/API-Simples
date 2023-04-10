@@ -1,7 +1,7 @@
 'use strict'
 const repository = require('../Repositories/userRepositorie')
-const moment = require('moment');
-
+const moment = require('moment')
+const validation = require('../validator/fluente-validator')
 
 exports.get = async (req, res, next) => {
   try {
@@ -12,45 +12,50 @@ exports.get = async (req, res, next) => {
   }
 }
 
-
-exports.getByActivate = async(req, res, next) =>{
+exports.getByActivate = async (req, res, next) => {
   try {
-    var data = await repository.getByActive(req.params.active) ;
-    res.status(200).send( data);
+    var data = await repository.getByActive(req.params.active)
+    res.status(200).send(data)
   } catch (error) {
-    res.status(500).send({message:"falha ao processar requisicao"});
+    res.status(500).send({ message: 'falha ao processar requisicao' })
   }
-
 }
 
-exports.getByName = async(req, res, next) =>{
-
+exports.getByName = async (req, res, next) => {
   try {
-   var data = await repository.getByName(req.params.nome);
-   res.status(200).send( data);
+    var data = await repository.getByName(req.params.nome)
+    res.status(200).send(data)
   } catch (error) {
-   res.status(500).send({message:"falha ao processar requisicao"});
+    res.status(500).send({ message: 'falha ao processar requisicao' })
   }
- }
+}
 
- exports.getByCracha = async(req, res, next) =>{
-
+exports.getByCracha = async (req, res, next) => {
   try {
-   var data = await repository.getByCracha(req.params.cracha);
-   res.status(200).send( data);
+    var data = await repository.getByCracha(req.params.cracha)
+    res.status(200).send(data)
   } catch (error) {
-   res.status(500).send({message:"falha ao processar requisicao"});
+    res.status(500).send({ message: 'falha ao processar requisicao' })
   }
- }
-
+}
 
 exports.post = async (req, res, next) => {
   try {
-    const data = req.body
-    const response = await repository.create(data)
-    res
-      .status(201)
-      .send({ message: 'Usuário cadastrado com sucesso', response: response })
+    let validator = new validation()
+    validator.hasMinLen(
+      req.body.nome,
+      8,
+      'O nome tem que ter mais que 8 caracteres'
+    )
+    validator.isEmail(req.body.email, 'email invalido')
+
+    if (!validator.isValid()) {
+      res.status(400).send(validator.errors()).end()
+    } else {
+      const data = req.body
+      const response = await repository.create(data)
+      res.status(201).send({ message: 'Usuário cadastrado com sucesso', response: response })
+    }
   } catch (error) {
     res
       .status(400)
@@ -73,15 +78,11 @@ exports.put = async (req, res, next) => {
   }
 }
 
-
-
-exports.delete =  async(req, res, next) => {
-
+exports.delete = async (req, res, next) => {
   try {
-    await  repository.delete(req.body.id);
-    res.status(201).send( {message:"Usuario removido com sucesso"});
+    await repository.delete(req.body.id)
+    res.status(201).send({ message: 'Usuario removido com sucesso' })
   } catch (error) {
-    res.status(400).send( {message:"Falha ao remover"});
+    res.status(400).send({ message: 'Falha ao remover' })
   }
-
 }
